@@ -7,7 +7,7 @@ module "workload_platform" {
     "arn:aws:iam::__SANDBOX_ACCOUNT_ID__:role/terraform-execution",
   ]
 
-  domain_names = ["staging.example.com"]
+  domain_names = ["__STAGING_DOMAIN_NAME__"]
 }
 
 data "aws_eks_cluster" "this" {

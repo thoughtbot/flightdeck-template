@@ -7,7 +7,7 @@ module "workload_platform" {
     "arn:aws:iam::__PRODUCTION_ACCOUNT_ID__:role/terraform-execution",
   ]
 
-  domain_names = ["example.com"]
+  domain_names = ["__PRODUCTION_DOMAIN_NAME__"]
 }
 
 data "aws_eks_cluster" "this" {
