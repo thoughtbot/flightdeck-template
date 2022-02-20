@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/create-root-module [VAR=value..] name" >&2
+  exit
+fi
+
+name=""
+backend=$(cat templates/backend.tf)
+providers=$(cat templates/providers.tf)
+versions=$(cat templates/versions.tf)
+
+while [ -n "$1" ]; do
+  case "$1" in
+    *=*)
+      pattern="__$(echo "$1" | cut -d= -f1 | tr a-z A-Z)__"
+      replacement=$(echo "$1" | cut -d= -f2-)
+      backend=$(echo "$backend" | sed "s|$pattern|$replacement|g")
+      providers=$(echo "$providers" | sed "s|$pattern|$replacement|g")
+      versions=$(echo "$versions" | sed "s|$pattern|$replacement|g")
+      ;;
+    *)
+      if [ -z "$name" ]; then
+        name="$1"
+      else
+        echo "Unexpected argument: $1" >&2
+        exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+
+backend=$(echo "$backend" | sed "s|__MODULE__|$name|g")
+providers=$(echo "$providers" | sed "s|__MODULE__|$name|g")
+versions=$(echo "$versions" | sed "s|__MODULE__|$name|g")
+
+mkdir -p "$name"
+echo "$backend" > "$name/backend.tf"
+echo "$providers" > "$name/providers.tf"
+echo "$versions" > "$name/versions.tf"
+touch "$name/main.tf"
+touch "$name/outputs.tf"
+touch "$name/variables.tf"
+echo "Created module $name."

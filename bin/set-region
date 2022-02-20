@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/set-region REGION" >&2
+  exit
+fi
+
+bin/set-template-var REGION "$1"

@@ -1,0 +1,10 @@
+terraform {
+  required_providers {
+    aws = {
+      version = "~> 3.0"
+    }
+    tls = {
+      version = "~> 3.0"
+    }
+  }
+}

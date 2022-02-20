@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: bin/set-template-var VAR VALUE" >&2
+  exit
+fi
+
+var="$1"
+value="$2"
+changes=""
+
+for tf in $(bin/terraform-files); do
+  pattern="__${var}__"
+  if grep -q "$pattern" "$tf"; then
+    sed "s|$pattern|$value|g" < "$tf" > /tmp/tf
+    mv /tmp/tf "$tf"
+    echo "Wrote $tf"
+    changes="$tf;$changes"
+  fi
+done
+
+if [ -z "$changes" ]; then
+  echo "No files required changes."
+fi
