@@ -4,7 +4,7 @@ module "workload_platform" {
   cluster_name = data.aws_eks_cluster.this.name
 
   admin_roles = [
-    "arn:aws:iam::__SANDBOX_ACCOUNT_ID__:role/terraform-execution",
+    "arn:aws:iam::__SANDBOX_ACCOUNT_ID__:role/__SANDBOX_EXECUTION_ROLE__",
   ]
 
   domain_names = ["__SANDBOX_DOMAIN_NAME__"]
