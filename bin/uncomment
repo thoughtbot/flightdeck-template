@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/uncomment SETTING" >&2
+  exit
+fi
+
+find . -name "*.tf" \
+  | grep -v ".terraform" \
+  | xargs grep -l "# $1" \
+  | while read filename; do
+  cat "$filename" \
+    | sed "s/# $1/$1/" \
+    > /tmp/temp.tf \
+    && mv /tmp/temp.tf "$filename"
+  echo "Wrote $filename"
+done
