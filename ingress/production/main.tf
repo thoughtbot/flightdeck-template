@@ -13,4 +13,7 @@ module "ingress" {
 
   # Uncomment to disable creation ACM certificates
   # issue_certificates = false
+
+  # Uncomment to lookup an existing ACM certificate using a different domain
+  # certificate_domain_name = "__PRODUCTION_CERTIFICATE_DOMAIN_NAME__"
 }
