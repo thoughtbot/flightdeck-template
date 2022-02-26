@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ]; then
+  echo "Usage: bin/set-flightdeck-version VERSION" >&2
+  exit
+fi
+
+find . -name "*.tf" \
+  | grep -v ".terraform" \
+  | xargs grep -l "github.com/thoughtbot/flightdeck" \
+  | while read filename; do
+  cat "$filename" \
+    | sed "s|\"\(github.com/thoughtbot/flightdeck//.*\?ref\)=.*\"|\"\1=$1\"|" \
+    > /tmp/temp.tf \
+    && mv /tmp/temp.tf "$filename"
+  echo "Wrote $filename"
+done
