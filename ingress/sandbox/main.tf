@@ -7,4 +7,10 @@ module "ingress" {
   name                = "__ORG_NAME__-sandbox"
   network_tags        = { "kubernetes.io/cluster/__ORG_NAME__-sandbox-v1" = "shared" }
   primary_domain_name = "__SANDBOX_DOMAIN_NAME__"
+
+  # Uncomment to disable creation of Route 53 aliases
+  # create_aliases = false
+
+  # Uncomment to disable creation ACM certificates
+  # issue_certificates = false
 }
