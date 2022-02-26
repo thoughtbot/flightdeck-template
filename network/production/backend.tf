@@ -4,8 +4,8 @@ terraform {
     dynamodb_table = "__PRODUCTION_STATE_TABLE__"
     encrypt        = true
     key            = "__STATE_PREFIX__network/production/terraform.tfstate"
-    kms_key_id     = "arn:aws:kms:__REGION__:__PRODUCTION_ACCOUNT_ID__:alias/__PRODUCTION_KMS_KEY_NAME__"
+    kms_key_id     = "arn:aws:kms:__REGION__:__PRODUCTION_ACCOUNT_ID__:alias/__PRODUCTION_STATE_KMS_KEY__"
     region         = "__REGION__"
-    role_arn       = "arn:aws:iam::__PRODUCTION_ACCOUNT_ID__:role/terraform-state-__PRODUCTION_ACCOUNT_ID__"
+    role_arn       = "arn:aws:iam::__PRODUCTION_ACCOUNT_ID__:role/__PRODUCTION_STATE_ROLE__"
   }
 }
