@@ -1,5 +1,5 @@
 module "cluster" {
-  source = "github.com/thoughtbot/flightdeck//aws/cluster?ref=v0.5.0"
+  source = "github.com/thoughtbot/flightdeck//aws/cluster?ref=v0.6.0"
 
   name        = "__ORG_NAME__-sandbox-v1"
   k8s_version = "1.21"
