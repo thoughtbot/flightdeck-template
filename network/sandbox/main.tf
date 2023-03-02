@@ -1,5 +1,5 @@
 module "network" {
-  source = "github.com/thoughtbot/flightdeck//aws/network?ref=v0.6.0"
+  source = "github.com/thoughtbot/flightdeck//aws/network?ref=v0.9.0"
 
   cluster_names          = ["__ORG_NAME__-sandbox-v1"]
   name                   = "__ORG_NAME__-sandbox"

@@ -1,5 +1,5 @@
 module "workload_platform" {
-  source = "github.com/thoughtbot/flightdeck//aws/platform?ref=v0.6.0"
+  source = "github.com/thoughtbot/flightdeck//aws/platform?ref=v0.9.0"
 
   cluster_name = data.aws_eks_cluster.this.name
 
