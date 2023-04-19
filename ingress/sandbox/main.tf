@@ -1,19 +1,36 @@
 module "ingress" {
-  providers = { aws.cluster = aws, aws.route53 = aws }
-  source    = "github.com/thoughtbot/flightdeck//aws/ingress?ref=v0.9.0"
+  source    = "github.com/thoughtbot/terraform-alb-ingress?ref=v0.6.0"
+  providers = { aws.alb = aws, aws.route53 = aws }
 
-  cluster_names       = ["__ORG_NAME__-sandbox-v1"]
-  hosted_zone_name    = "__SANDBOX_HOSTED_ZONE__"
-  name                = "__ORG_NAME__-sandbox"
-  network_tags        = { "kubernetes.io/cluster/__ORG_NAME__-sandbox-v1" = "shared" }
-  primary_domain_name = "__SANDBOX_DOMAIN_NAME__"
+  description   = "Flightdeck sandbox load balancer"
+  name          = "__ORG_NAME__-sandbox"
+  subnet_ids    = module.target_groups.subnet_ids
+  target_groups = module.target_groups.by_cluster
 
-  # Uncomment to disable creation of Route 53 aliases
-  # create_aliases = false
+  # Choose the domain name of the primary certificate of the HTTPS listener
+  primary_certificate_domain = "__SANDBOX_HOSTED_ZONE__"
 
-  # Uncomment to disable creation ACM certificates
-  # issue_certificates = false
+  # Create and validate ACM certificates
+  issue_certificate_domains = ["__SANDBOX_HOSTED_ZONE__"]
+  validate_certificates     = true
 
-  # Uncomment to lookup an existing ACM certificate using a different domain
-  # certificate_domain_name = "__SANDBOX_CERTIFICATE_DOMAIN_NAME__"
+  # Attach ACM certificates created outside the module
+  attach_certificate_domains = ["__SANDBOX_HOSTED_ZONE__"]
+
+  # Create aliases
+  create_domain_aliases = ["__SANDBOX_HOSTED_ZONE__"]
+
+  # Choose a Route 53 zone for aliases and certificate validation
+  hosted_zone_name = "__SANDBOX_HOSTED_ZONE__"
+
+}
+
+module "target_groups" {
+  source = "github.com/thoughtbot/flightdeck//aws/target-groups?ref=v0.9.0"
+
+  cluster_names = [data.aws_eks_cluster.sandbox_v1.name]
+}
+
+data "aws_eks_cluster" "sandbox_v1" {
+  name = "__ORG_NAME__-sandbox-v1"
 }
