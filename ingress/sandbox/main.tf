@@ -6,6 +6,7 @@ module "ingress" {
   name          = "__ORG_NAME__-sandbox"
   subnet_ids    = module.target_groups.subnet_ids
   target_groups = module.target_groups.by_cluster
+  vpc_id        = module.target_groups.vpc_id
 
   # Choose the domain name of the primary certificate of the HTTPS listener
   primary_certificate_domain = "__SANDBOX_HOSTED_ZONE__"
@@ -15,7 +16,7 @@ module "ingress" {
   validate_certificates     = true
 
   # Attach ACM certificates created outside the module
-  attach_certificate_domains = ["__SANDBOX_HOSTED_ZONE__"]
+  attach_certificate_domains = []
 
   # Create aliases
   create_domain_aliases = ["__SANDBOX_HOSTED_ZONE__"]
