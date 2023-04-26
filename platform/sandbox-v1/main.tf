@@ -4,10 +4,21 @@ module "workload_platform" {
   cluster_name = data.aws_eks_cluster.this.name
 
   admin_roles = [
-    "arn:aws:iam::__SANDBOX_ACCOUNT_ID__:role/__SANDBOX_EXECUTION_ROLE__",
+    data.aws_iam_role.eks["terraform-execution"].arn,
+    module.permission_set_roles.by_name_without_path.InfrastructureAdmin
   ]
 
-  domain_names = ["__SANDBOX_DOMAIN_NAME__"]
+  custom_roles = {
+    developer = module.permission_set_roles.by_name_without_path.DeveloperAccess
+  }
+
+  domain_names = [
+    "__SANDBOX_DOMAIN_NAME__"
+  ]
+}
+
+module "permission_set_roles" {
+  source = "github.com/thoughtbot/terraform-aws-sso-permission-set-roles.git?ref=v0.2.0"
 }
 
 data "aws_eks_cluster" "this" {
@@ -16,4 +27,12 @@ data "aws_eks_cluster" "this" {
 
 data "aws_eks_cluster_auth" "kubernetes" {
   name = data.aws_eks_cluster.this.name
+}
+
+data "aws_iam_role" "eks" {
+  for_each = toset([
+    "terraform-execution"
+  ])
+
+  name = each.value
 }
