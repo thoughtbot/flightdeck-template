@@ -1,0 +1,50 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
+  echo "Usage: bin/append-terraform-value PATH MODULE VARIABLE VALUE" >&2
+  exit
+fi
+
+step="find"
+
+while IFS= read line; do
+  case "$step" in
+    find)
+      if echo "$line" | grep -qe "^module \"$2\" {$"; then
+        step="module"
+        echo "Found module $2" >&2
+      fi
+      ;;
+    module)
+      if [ "$line" = "}" ]; then
+        printf "  % s= %s\n" "$3" "$4"
+        echo "Appended $3" >&2
+        step="complete"
+      fi
+      ;;
+    complete)
+      ;;
+  esac
+
+  printf "%s\n" "$line"
+done < "$1" > /tmp/main.tf
+
+echo "$step"
+
+case "$step" in
+  find)
+    echo "Failed to find module $2" >&2
+    exit 1
+    ;;
+  module)
+    echo "Failed to find end of module" >&2
+    exit 1
+    ;;
+  complete)
+    terraform fmt /tmp/main.tf >/dev/null
+    mv /tmp/main.tf "$1"
+    echo "Wrote $1" >&2
+    ;;
+esac
