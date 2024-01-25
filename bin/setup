@@ -1,0 +1,84 @@
+#!/bin/sh
+
+set -e
+
+AWS_HOME_REGION="__AWS_HOME_REGION__"
+AWS_SSO_START_URL="__AWS_SSO_START_URL__"
+AWS_PROFILE_PREFIX="__AWS_PROFILE_PREFIX__"
+AWS_ADMIN_ROLE_NAME="__AWS_ADMIN_ROLE_NAME__"
+AWS_OPERATIONS_ACCOUNT_ID="__AWS_OPERATIONS_ACCOUNT_ID__"
+
+if ! command -v aws > /dev/null; then
+  echo "Please install the AWS cli and try again"
+  exit 1
+fi
+
+force=""
+
+if [ "$1" = "--force" ]; then
+  force="true"
+fi
+
+profiles=$(aws configure list-profiles)
+
+expandname() {
+  shortname="$1"
+  suffix="$2"
+  echo "$AWS_PROFILE_PREFIX-$shortname$suffix"
+}
+
+checkrole() {
+  fullname=$(expandname "$1" "$2")
+
+  if [ -n "$force" ] || ! echo "$profiles" | grep -qx "$fullname"; then
+    echo "$fullname"
+  fi
+}
+
+configure_sso_profile() {
+  account_id="$1"
+  rolename="$2"
+  fullname=$(expandname "$3" "$4")
+  existingrole=$(checkrole "$3" "$4")
+  if [ -n "$existingrole" ]; then
+    echo "Configuring profile: $fullname" >&2
+    aws configure set "profile.$fullname.sso_start_url" "$AWS_SSO_START_URL"
+    aws configure set "profile.$fullname.sso_region" "$AWS_HOME_REGION"
+    aws configure set "profile.$fullname.sso_account_id" "$account_id"
+    aws configure set "profile.$fullname.sso_role_name" "$rolename"
+    aws configure set "profile.$fullname.region" "$AWS_HOME_REGION"
+  fi
+
+  echo "$fullname"
+}
+
+configure_role_profile() {
+  accountid="$1"
+  sourceprofile=$(expandname "$2")
+  rolename="$3"
+  fullname=$(expandname "$4")
+  existingrole=$(checkrole "$4")
+  rolearn="arn:aws:iam::$accountid:role/$rolename"
+
+  if [ -n "$existingrole" ]; then
+    echo "Configuring profile: $fullname" >&2
+    aws configure set "profile.$fullname.role_arn" "$rolearn"
+    aws configure set "profile.$fullname.source_profile" "$sourceprofile"
+    aws configure set "profile.$fullname.region" "$AWS_HOME_REGION"
+  fi
+
+  echo "$fullname"
+}
+
+sso_profile=$(configure_sso_profile $AWS_OPERATIONS_ACCOUNT_ID $AWS_ADMIN_ROLE_NAME "operations" "-admin")
+operations_role=$(configure_role_profile $AWS_OPERATIONS_ACCOUNT_ID "operations-admin" "terraform-operations" "terraform" )
+
+if ! aws --profile "$sso_profile" sts get-caller-identity > /dev/null; then
+  aws --profile "$sso_profile" sso login
+fi
+
+echo
+echo "Use AWS profile \033[0;32m$operations_role\033[0m to apply Terraform modules."
+echo
+echo "  export AWS_PROFILE=$operations_role"
+echo
