@@ -1,0 +1,119 @@
+# Overrides to use Prometheus rules from more recent version of Flightdeck
+rules:
+- name: istio
+  groups:
+  - name: istio
+    rules:
+    # Total requests by service
+    - record: istio:namespace_destination_service_name:istio_requests:rate5m
+      expr: |
+        sum(
+          rate(istio_requests_total{
+            source_workload_namespace!="kube-prometheus-stack",
+            destination_service_namespace!="unknown",
+            reporter="source"
+          }[5m])
+        ) by (destination_service_namespace, destination_service_name)
+    # Total requests by service, response code
+    - record: istio:namespace_destination_service_name_response_code:istio_requests:rate5m
+      expr: |
+        sum(
+          rate(istio_requests_total{
+            source_workload_namespace!="kube-prometheus-stack",
+            destination_service_namespace!="unknown",
+            reporter="source"
+          }[5m])
+        ) by (destination_service_namespace, destination_service_name, response_code)
+    # Response size percentiles by service
+    - record: istio:namespace_destination_service_name:istio_response_bytes:50p5m
+      expr: |
+        histogram_quantile(
+          0.50,
+          sum by (destination_service_namespace, destination_service_name, le) (
+            rate(istio_response_bytes_bucket{
+              source_workload_namespace!="kube-prometheus-stack",
+              destination_service_namespace!="unknown",
+              reporter="source"
+            }[5m])
+          )
+        )
+    - record: istio:namespace_destination_service_name:istio_response_bytes:95p5m
+      expr: |
+        histogram_quantile(
+          0.95,
+          sum by (destination_service_namespace, destination_service_name, le) (
+            rate(istio_response_bytes_bucket{
+              source_workload_namespace!="kube-prometheus-stack",
+              destination_service_namespace!="unknown",
+              reporter="source"
+            }[5m])
+          )
+        )
+    - record: istio:namespace_destination_service_name:istio_response_bytes:99p5m
+      expr: |
+        histogram_quantile(
+          0.99,
+          sum by (destination_service_namespace, destination_service_name, le) (
+            rate(istio_response_bytes_bucket{
+              source_workload_namespace!="kube-prometheus-stack",
+              destination_service_namespace!="unknown",
+              reporter="source"
+            }[5m])
+          )
+        )
+    # Request duration by service, response code, bucket
+    - record: istio:namespace_destination_service_name_response_code_le:istio_request_duration_milliseconds_bucket:rate5m
+      expr: |
+        sum by (destination_service_namespace, destination_service_name, response_code, le) (
+          rate(istio_request_duration_milliseconds_bucket{
+            source_workload_namespace!="kube-prometheus-stack",
+            destination_service_namespace!="unknown",
+            reporter="source"
+          }[5m])
+        )
+    # Count of request duration samples by service, response code
+    - record: istio:namespace_destination_service_name_response_code:istio_request_duration_milliseconds_count:rate5m
+      expr: |
+        sum by (destination_service_namespace, destination_service_name, response_code) (
+          rate(istio_request_duration_milliseconds_count{
+            source_workload_namespace!="kube-prometheus-stack",
+            destination_service_namespace!="unknown",
+            reporter="source"
+          }[5m])
+        )
+- name: cluster-autoscaler
+  groups:
+  - name: cluster-autoscaler
+    rules:
+    - record: deploy:cluster_autoscaler:cpu_current_cores:gauge
+      expr: |
+        max(cluster_autoscaler_cluster_cpu_current_cores)
+        without (instance, pod)
+    - record: deploy:cluster_autoscaler:memory_current_bytes:gauge
+      expr: |
+        max(cluster_autoscaler_cluster_memory_current_bytes)
+        without (instance, pod)
+    - record: deploy:cluster_autoscaler:nodes_count:gauge
+      expr: |
+        max(cluster_autoscaler_nodes_count)
+        without (instance, pod)
+    - record: deploy:cluster_autoscaler:unschedulable_pods_count:gauge
+      expr: |
+        max(cluster_autoscaler_unschedulable_pods_count)
+        without (instance, pod)
+- name: fluentbit
+  groups:
+  - name: fluentbit
+    rules:
+    - record: svc:fluentbit:output_proc_bytes:rate5m
+      expr: |
+        sum(rate(fluentbit_output_proc_bytes_total[5m]))
+        without (instance, pod)
+    - record: svc:fluentbit:output_proc_bytes_min:rate5m
+      expr: |
+        min(rate(fluentbit_output_proc_bytes_total[5m]))
+        without (instance, pod)
+    - record: svc:fluentbit:output_dropped_records_total:rate5m
+      expr: |
+        sum(rate(fluentbit_output_dropped_records[5m]))
+        without (instance, pod)
