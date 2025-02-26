@@ -3,16 +3,18 @@ module "network" {
 
   cluster_names          = ["__ORG_NAME__-production-v1"]
   name                   = "__ORG_NAME__-production"
-  nat_availability_zones = ["__REGION__a", "__REGION__b"]
+  nat_availability_zones = ["__REGION__a", "__REGION__b", "__REGION__c"]
   vpc_cidr_block         = "10.32.0.0/16"
 
   private_subnet_cidr_blocks = {
     "__REGION__a" = "10.32.64.0/18"
     "__REGION__b" = "10.32.128.0/18"
+    "__REGION__c" = "10.32.192.0/18"
   }
 
   public_subnet_cidr_blocks = {
     "__REGION__a" = "10.32.0.0/20"
     "__REGION__b" = "10.32.16.0/20"
+    "__REGION__c" = "10.32.32.0/20"
   }
 }
