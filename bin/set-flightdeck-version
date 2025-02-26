@@ -3,8 +3,14 @@
 set -e
 
 if [ -z "$1" ]; then
-  echo "Usage: bin/set-flightdeck-version VERSION" >&2
-  exit
+  echo "No version provided. Fetching the latest tag from the remote repository..."
+  VERSION=$(git ls-remote --tags https://github.com/thoughtbot/flightdeck.git | grep -o 'refs/tags/v[0-9]*\.[0-9]*\.[0-9]*$' | sort -V | tail -n1 | sed 's/refs\/tags\///')
+  if [ -z "$VERSION" ]; then
+    echo "Failed to fetch the latest version." >&2
+    exit 1
+  fi
+else
+  VERSION=$1
 fi
 
 find . -name "*.tf" \
@@ -12,7 +18,7 @@ find . -name "*.tf" \
   | xargs grep -l "github.com/thoughtbot/flightdeck" \
   | while read filename; do
   cat "$filename" \
-    | sed "s|\"\(github.com/thoughtbot/flightdeck//.*\?ref\)=.*\"|\"\1=$1\"|" \
+    | sed 's|"\(github.com/thoughtbot/flightdeck//.*\?ref\)=.*"|"\1='"$VERSION"'"|' \
     > /tmp/temp.tf \
     && mv /tmp/temp.tf "$filename"
   echo "Wrote $filename"
