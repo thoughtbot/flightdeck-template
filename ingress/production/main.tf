@@ -27,7 +27,7 @@ module "ingress" {
 }
 
 module "target_groups" {
-  source = "github.com/thoughtbot/flightdeck//aws/target-groups?ref=v0.9.0"
+  source = "github.com/thoughtbot/flightdeck//aws/target-groups?ref=v0.12.1"
 
   cluster_names = [data.aws_eks_cluster.production_v1.name]
 }
