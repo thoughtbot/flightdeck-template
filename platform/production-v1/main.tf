@@ -19,10 +19,6 @@ module "workload_platform" {
   domain_names = [
     "__PRODUCTION_DOMAIN_NAME__"
   ]
-  prometheus_data_source = module.prometheus.prometheus_data
-  flightdeck_prometheus_values = [
-    file("${path.module}/../flightdeck-prometheus-values.yaml")
-  ]
 }
 
 module "permission_set_roles" {
@@ -43,10 +39,4 @@ data "aws_iam_role" "eks" {
   ])
 
   name = each.value
-}
-
-module "prometheus" {
-  source = "github.com/thoughtbot/flightdeck//aws/prometheus-data?ref=v0.12.1"
-
-  aws_prometheus_workspace_name = "__ORG_NAME__-production"
 }
