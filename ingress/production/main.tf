@@ -1,5 +1,5 @@
 module "ingress" {
-  source    = "github.com/thoughtbot/terraform-alb-ingress?ref=v0.6.0"
+  source    = "github.com/thoughtbot/terraform-alb-ingress?ref=v0.7.0"
   providers = { aws.alb = aws, aws.route53 = aws }
 
   description   = "Flightdeck production load balancer"

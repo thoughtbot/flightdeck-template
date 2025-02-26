@@ -18,7 +18,7 @@ module "workload_platform" {
 }
 
 module "permission_set_roles" {
-  source = "github.com/thoughtbot/terraform-aws-sso-permission-set-roles.git?ref=v0.2.0"
+  source = "github.com/thoughtbot/terraform-aws-sso-permission-set-roles.git?ref=v0.3.0"
 }
 
 data "aws_eks_cluster" "this" {
