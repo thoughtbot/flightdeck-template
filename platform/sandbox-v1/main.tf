@@ -8,14 +8,6 @@ module "workload_platform" {
     module.permission_set_roles.by_name_without_path.InfrastructureAdmin
   ]
 
-  # flightdeck-example-sandbox-developer must be replaced with roles to access
-  # the cluster based on namespaces you'll be creating later.
-  custom_groups = {
-    (module.permission_set_roles.by_name_without_path.DeveloperAccess) = [
-      "flightdeck-example-sandbox-developer"
-    ]
-  }
-
   domain_names = [
     "__SANDBOX_DOMAIN_NAME__"
   ]

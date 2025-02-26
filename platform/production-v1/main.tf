@@ -8,14 +8,6 @@ module "workload_platform" {
     module.permission_set_roles.by_name_without_path.InfrastructureAdmin
   ]
 
-  # flightdeck-example-production-developer must be replaced with roles to access
-  # the cluster based on namespaces you'll be creating later.
-  custom_groups = {
-    (module.permission_set_roles.by_name_without_path.DeveloperAccess) = [
-      "flightdeck-production-developer"
-    ]
-  }
-
   domain_names = [
     "__PRODUCTION_DOMAIN_NAME__"
   ]
